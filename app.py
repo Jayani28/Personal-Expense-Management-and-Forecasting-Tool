@@ -10,13 +10,13 @@ import numpy as np
 
 app = Flask(__name__)
 
-app.config['MONGO_URI'] = '<your mongo uri>'
+app.config['MONGO_URI'] = 'mongodb+srv://narrajayani:jayanimongo@cluster0.ngsa6zf.mongodb.net/expense_tracking'
 mongo = PyMongo(app)
 
-mongo_uri = "<your mongo uri>"
+mongo_uri = "mongodb+srv://narrajayani:jayanimongo@cluster0.ngsa6zf.mongodb.net/"
 client = MongoClient(mongo_uri)
 db = client.expense_tracking
-collection = db.transactions
+collection = db.transactions 
 
 @app.route('/')
 def home():
@@ -115,7 +115,7 @@ def transactions_this_month():
     transactions = list(mongo.db.transactions.find({
         '$or': [{'type': 'Expense'}, {'type': 'Income'}]
     }))
-
+    # total dataset
     transaction = list(collection.find()) 
     transaction_df = pd.DataFrame(transaction)
     transaction_df['amount']=transaction_df['amount'].astype('float')
@@ -126,12 +126,37 @@ def transactions_this_month():
     expense_df['amount']=expense_df['amount'].astype('int')
     expense_amount=expense_df.amount.sum()
     income_amount=income_df.amount.sum()
-    total_balance=income_amount-expense_amount
+    total_balance=income_amount-expense_amount 
 
-    current_expense = 100
+    # for current month
+    transactions_month = list(mongo.db.transactions.find({
+    '$or': [{'type': 'Expense'}, {'type': 'Income'}],
+    'date': {'$regex': '^2'}}).sort([('date', -1)]))
+
+    transaction_month = list(collection.find()) 
+    transaction_df_month = pd.DataFrame(transactions_month)
+    transaction_df_month['amount']=transaction_df_month['amount'].astype('float')
+    missing_values_month=transaction_df_month.columns[transaction_df.isna().any()]
+    income_df_month=transaction_df_month[transaction_df_month['type']== 'Income']
+    income_df_month['amount']=income_df_month['amount'].astype('int')
+    expense_df_month=transaction_df_month[transaction_df_month['type']== 'Expense']
+    expense_df_month['amount']=expense_df_month['amount'].astype('int')
+    expense_amount_month=expense_df_month.amount.sum()
+    income_amount_month=income_df_month.amount.sum()
+    total_balance_month=income_amount_month-expense_amount_month 
+
+    # Calculate total expense for the selected month
+    # total_expense_month = sum(transaction_month['amount'] for transaction_month in transactions_month)
+    # return render_template('transactions_month.html', transactions=transactions, total_expense=total_expense)
+
+
+    # current_expense = 100
     predicted_month_expense = 80
 
-    return render_template('transactions_month.html', transactions=transactions,expense_amount=expense_amount,income_amount=income_amount,total_balance=total_balance,current_expense=current_expense, predicted_month_expense=predicted_month_expense)
+    return render_template('transactions_month.html',transactions_month=transactions_month, 
+    transactions=transactions,expense_amount=expense_amount,income_amount=income_amount,
+    total_balance=total_balance,total_balance_month=total_balance_month,income_amount_month=income_amount_month,
+    expense_amount_month=expense_amount_month, predicted_month_expense=predicted_month_expense)
 
 
 @app.route('/plot.png')

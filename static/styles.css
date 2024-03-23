@@ -284,7 +284,14 @@ a {
     border: 1px solid red;
     color: red;
     width: fit-content;
+    font-size: 20px;
   }
+
+.total_expense{
+    color: black;
+    font-size: 30px;
+
+}
 
 /* .plot_img{
     height:60%;
