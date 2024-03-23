@@ -10,10 +10,10 @@ import numpy as np
 
 app = Flask(__name__)
 
-app.config['MONGO_URI'] = '<your mongo uri>'
+app.config['MONGO_URI'] = 'mongodb+srv://narrajayani:jayanimongo@cluster0.ngsa6zf.mongodb.net/expense_tracking'
 mongo = PyMongo(app)
 
-mongo_uri = "<your mongo uri>"
+mongo_uri = "mongodb+srv://narrajayani:jayanimongo@cluster0.ngsa6zf.mongodb.net/"
 client = MongoClient(mongo_uri)
 db = client.expense_tracking
 collection = db.transactions
